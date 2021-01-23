@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
+    "eslint": "^7.18.0",
     "typescript": "^4.1.3"
   },
-  "devDependencies": {
-    "eslint": "^7.18.0"
+  "scripts": {
+    "start": "tsc && node build/index.js"
   }
 }

@@ -1,21 +1,11 @@
-import * as fs from "fs";
-import {promisify} from "util";
+import * as File from "../shared/file";
 
 const FINAL_TARGET = 2020;
 const path = __dirname + "/input.txt";
 
-const processContents = (data: string) => {
-  const numbers = data.split("\n")
-    .map(line => Number(line))
-    .filter(num => !isNaN(num) && num !== 0);
-
-  return numbers;
-};
-
-// const findSumTerms = (numbers: number[]) : [first: number, second: number] => {
-//   const firstTerm = numbers.filter(num => numbers.includes(TARGET - num))[0];
-//   return [firstTerm, TARGET - firstTerm];
-// };
+const processContents = (lines: string[]) => lines
+  .map(line => Number(line))
+  .filter(num => !isNaN(num) && num !== 0);
 
 const findSumTerms = (numbers: number[], termsToFind: number, target: number): number[] => {
   if (termsToFind === 1) {
@@ -61,7 +51,7 @@ const solveForMultipleTerms = (numbers: number[], maxTerms: number) => {
   return new Array(maxTerms)
     .fill(0)
     .map((_, i) => solve(numbers, i + 1))
-    .map((result, i) => ({ terms: i + 1, solution: result }))
+    .map((result, i) => ({terms: i + 1, solution: result}))
     .filter(result => result.solution !== 1)
     .map(result => `${result.terms} Terms: ${result.solution}`)
     .join("\n");
@@ -70,8 +60,7 @@ const solveForMultipleTerms = (numbers: number[], maxTerms: number) => {
 export function run(args: string[]) {
   const max = Number(args[0]);
 
-  const readFile = promisify(fs.readFile);
-  return readFile(path, "utf8")
+  return File.readAllLines(path)
     .then(processContents)
     .then(numbers => solveForMultipleTerms(numbers, max));
 }

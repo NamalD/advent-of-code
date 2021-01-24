@@ -41,13 +41,9 @@ const findSumTerms = (numbers: number[], termsToFind: number, target: number): n
     if (!numbersToSearch.find(n => n <= subTarget))
       continue;
 
-    console.log(`Possible: ${possibleTerm}, Target: ${subTarget}, in ${numbersToSearch}`);
-
     const partnerTerms = findSumTerms(numbersToSearch, termsToFind - 1, subTarget);
     if (partnerTerms.length === 0)
       continue;
-
-    console.log(`Found partner terms ${partnerTerms} for ${possibleTerm}`);
 
     return [possibleTerm, ...partnerTerms];
   }
@@ -61,13 +57,21 @@ const multiplyTerms = (terms: number[]) =>
 const solve = (numbers: number[], terms: number): number =>
   multiplyTerms(findSumTerms(numbers, terms, FINAL_TARGET));
 
-export function run(): Promise<string> {
+const solveForMultipleTerms = (numbers: number[], maxTerms: number) => {
+  return new Array(maxTerms)
+    .fill(0)
+    .map((_, i) => solve(numbers, i + 1))
+    .map((result, i) => ({ terms: i + 1, solution: result }))
+    .filter(result => result.solution !== 1)
+    .map(result => `${result.terms} Terms: ${result.solution}`)
+    .join("\n");
+};
+
+export function run(args: string[]) {
+  const max = Number(args[0]);
+
   const readFile = promisify(fs.readFile);
   return readFile(path, "utf8")
     .then(processContents)
-    .then(numbers => [
-      solve(numbers, 2),
-      solve(numbers, 3)
-    ])
-    .then(result => "Part 1: " + result[0] + "\n" + "Part 2: " + result[1]);
+    .then(numbers => solveForMultipleTerms(numbers, max));
 }

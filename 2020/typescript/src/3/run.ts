@@ -7,11 +7,6 @@ const START_POSITION: Coordinate = {
   y: 0
 };
 
-const MOVEMENT: Coordinate = {
-  x: 3,
-  y: 1
-};
-
 const Open = ".";
 const Tree = "#";
 type Cell = typeof Open | typeof Tree;
@@ -26,10 +21,19 @@ type Coordinate = {
   y: number
 };
 
-export function run(args: string[]): Promise<any> {
-  return readAllLines(PATH)
-    .then(parseMap)
-    .then(travelToExit);
+export async function run(args: string[]): Promise<any> {
+  const movements: Coordinate[] = [
+    {x: 3, y: 1},
+    {x: 1, y: 1},
+    {x: 5, y: 1},
+    {x: 7, y: 1},
+    {x: 1, y: 2},
+  ];
+
+  const map = await readAllLines(PATH).then(parseMap);
+  return movements
+    .map(movement => travelToExit(map, movement))
+    .reduce((prev, curr) => prev * curr, 1);
 }
 
 const parseMap = (lines: string[]): Map => lines.map(parseCell);
@@ -39,21 +43,20 @@ const parseCell = (line: string): Cell[] => Array.from(line).map(char => char as
  * Travel to exit (outside the map) from start position,
  * @returns number of hit trees
  */
-const travelToExit = (map: Map, currentPosition?: Coordinate): number => {
-  const nextPosition = transpose(move(currentPosition ?? START_POSITION), map);
+const travelToExit = (map: Map, movement: Coordinate, currentPosition?: Coordinate): number => {
+  const nextPosition =
+    transpose(
+      move(currentPosition ?? START_POSITION, movement),
+      map);
 
   // We have exited if the Y position is outside the bounds
   if (nextPosition.y >= map.length) {
-    console.log("exited map");
     return 0;
   }
 
-  // DEBUG: Print the location we travelled to
-  const nextCell = map[nextPosition.y][nextPosition.x];
-  console.log(nextCell);
-
   // Otherwise, keep travelling
-  return travelToExit(map, nextPosition) + (nextCell === Tree ? 1 : 0);
+  const nextCell = map[nextPosition.y][nextPosition.x];
+  return travelToExit(map, movement, nextPosition) + (nextCell === Tree ? 1 : 0);
 };
 
 /**
@@ -61,9 +64,9 @@ const travelToExit = (map: Map, currentPosition?: Coordinate): number => {
  * @param position
  * @returns next position
  */
-const move = (position: Coordinate): Coordinate => ({
-  x: position.x + MOVEMENT.x,
-  y: position.y + MOVEMENT.y
+const move = (position: Coordinate, movement: Coordinate): Coordinate => ({
+  x: position.x + movement.x,
+  y: position.y + movement.y
 });
 
 /**

@@ -21,7 +21,7 @@ type Coordinate = {
   y: number
 };
 
-export async function run(args: string[]): Promise<any> {
+export async function run(): Promise<number> {
   const movements: Coordinate[] = [
     {x: 3, y: 1},
     {x: 1, y: 1},
@@ -61,7 +61,6 @@ const travelToExit = (map: Map, movement: Coordinate, currentPosition?: Coordina
 
 /**
  * Get next position given the current position.
- * @param position
  * @returns next position
  */
 const move = (position: Coordinate, movement: Coordinate): Coordinate => ({

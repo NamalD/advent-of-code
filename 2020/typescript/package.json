@@ -22,7 +22,7 @@
   "scripts": {
     "start": "tsc && yarn copyfiles && clear && node build/index.js",
     "copyfiles": "copyfiles src/**/input.txt build/",
-    "dev": "yarn start 2 2",
+    "dev": "yarn start 3",
     "watch": "npm-watch"
   },
   "dependencies": {

@@ -3,10 +3,25 @@ defmodule Day1 do
   Documentation for `Day1`.
   """
 
-  def run_part_one do
+  def digit_text do
+    %{
+      "one" => 1,
+      "two" => 2,
+      "three" => 3,
+      "four" => 4,
+      "five" => 5,
+      "six" => 6,
+      "seven" => 7,
+      "eight" => 8,
+      "nine" => 9
+    }
+  end
+
+  def run do
     File.read!("calibration.txt")
-    |> String.split("\n")
+    |> String.split("\r\n")
     |> Enum.map(fn line -> find_calibration_value(line) end)
+    |> Enum.reverse()
     |> Enum.sum()
   end
 
@@ -25,57 +40,47 @@ defmodule Day1 do
       12
       iex> Day1.find_calibration_value("a1b")
       11
-      iex> Day1.find_calibration_value("abc")
-      ** (RuntimeError) No digit found in abc
+      iex> Day1.find_calibration_value("four2tszbgmxpbvninebxns6nineqbqzgjpmpqr")
+      49
+      iex> Day1.find_calibration_value("eightwothree")
+      83
   """
   def find_calibration_value(line) do
-    first = first_digit(line) |> to_string()
-    last = last_digit(line) |> to_string()
-    String.to_integer(first <> last)
+    digits = all_digits(line)
+    first_digit = Enum.at(digits, 0) |> to_string()
+    last_digit = Enum.at(digits, length(digits) - 1) |> to_string()
+    String.to_integer(first_digit <> last_digit)
   end
 
   @doc """
-  Finds the first digit in a string of alphanumeric characters.
+  Finds all digits in a string of alphanumeric characters.
+  Textual representations of digits are supported.
 
   ## Examples
-
-      iex> Day1.first_digit("123")
-      1
-      iex> Day1.first_digit("abc123")
-      1
-      iex> Day1.first_digit("abc")
-      ** (RuntimeError) No digit found in abc
+      iex> Day1.all_digits("1")
+      [1]
+      iex> Day1.all_digits("123")
+      [1, 2, 3]
+      iex> Day1.all_digits("eightwothree")
+      [8, 2, 3]
+      iex> Day1.all_digits("123")
+      [1, 2, 3]
+      iex> Day1.all_digits("abc123")
+      [1, 2, 3]
+      iex> Day1.all_digits("a1b")
+      [1]
+      iex> Day1.all_digits("one2")
+      [1, 2]
+      iex> Day1.all_digits("four2tszbgmxpbvninebxns6nineqbqzgjpmpqr")
+      [4, 2, 9, 6, 9]
   """
-  def first_digit(text) do
-    # Try to find the first digit in the string
-    [found_digit] = Regex.run(~r/\d/, text)
-    String.to_integer(found_digit)
-  rescue
-    # Raise an error if no digits are found
-    _ ->
-      raise RuntimeError, "No digit found in #{text}"
+  def all_digits(text) do
+    # TODO: Look at Enum.chunk_while function (https://hexdocs.pm/elixir/1.16/Enum.html#chunk_while/4)
+
   end
 
-  @doc """
-  Finds the last digit in a string of alphanumeric characters.
-
-  ## Examples
-
-      iex> Day1.last_digit("123")
-      3
-      iex> Day1.last_digit("abc123")
-      3
-      iex> Day1.last_digit("a1b")
-      1
-      iex> Day1.last_digit("abc")
-      ** (RuntimeError) No digit found in abc
-  """
-  def last_digit(text) do
-    String.reverse(text) |> first_digit()
-  rescue
-    # Raise an error if no digits are found
-    _ ->
-      raise RuntimeError, "No digit found in #{text}"
-  end
-
+  defp convert_to_digit(word) when word in ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"], do:
+    digit_text()[word]
+  defp convert_to_digit(digit) when digit in ["1", "2", "3", "4", "5", "6", "7", "8", "9"], do:
+    String.to_integer(digit)
 end

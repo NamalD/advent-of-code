@@ -13,6 +13,59 @@ defmodule Day2 do
     |> Enum.sum
   end
 
+  def run_part_two do
+    File.read!("input.txt")
+    |> String.split("\n")
+    |> Enum.filter(&String.length(&1) > 0)
+    |> Enum.map(&parse_line/1)
+    |> Enum.map(&calculate_min_balls/1)
+    |> Enum.map(&calculate_power/1)
+    |> Enum.sum
+  end
+
+  @doc """
+  Calculate the minimum number of balls needed to play a game.
+
+  ## Examples
+
+      iex> Day2.calculate_min_balls(%{game: 1, sets: [%{blue: 3, red: 4}, %{red: 1, green: 2}, %{blue: 6, green: 2}]})
+      ${red: 4, green: 2, blue: 6}
+  """
+  def calculate_min_balls(game) do
+    game[:sets]
+    |> Enum.map(&calculate_min_balls_for_set/1)
+    |> Enum.reduce(fn set1, set2 -> Map.merge(set1, set2, fn _, count1, count2 -> count1 + count2 end) end)
+  end
+
+  def calculate_min_balls_for_set(set) do
+    red = Map.get(set, :red, 0)
+    blue = Map.get(set, :blue, 0)
+    green = Map.get(set, :green, 0)
+    %{red: red, blue: blue, green: green}
+    |> Enum.reduce(fn {color, count}, acc ->
+      if count > 0 do
+        Map.update!(acc, color, count, &(&1 + count))
+      else
+        acc
+      end
+    end)
+  end
+
+  @doc """
+  Calculate the power of a game. The power is the number of red, blue and green balls multiplied together.
+
+  ## Examples
+
+      iex> Day2.calculate_power(%{ red: 4, green: 2, blue: 6 })
+      48
+  """
+  def calculate_power(game) do
+    red = Map.get(game, :red, 0)
+    blue = Map.get(game, :blue, 0)
+    green = Map.get(game, :green, 0)
+    red * blue * green
+  end
+
   @doc """
   Check if a game is possible.
 
